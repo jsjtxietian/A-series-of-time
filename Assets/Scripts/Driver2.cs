@@ -1,4 +1,5 @@
 ﻿using System;
+using Ardunity;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,10 +14,16 @@ public class Driver2 : MonoBehaviour
 
     public GameObject Audio;
 
-    private bool isStop;
+    private bool EarphoneIsUp;
     private DateTime startTime;
     private DateTime stopTime;
     private int secondsPassed;
+
+    public AnalogInput SensorInput;
+    private float LastInput;
+    private float CurrentInput;
+    private int testSeconds = 300;
+
 
     #region  currentTime and the get/set method
     public int currentMinute
@@ -59,9 +66,9 @@ public class Driver2 : MonoBehaviour
     // Use this for initialization
     void Start ()
     {
-        Hours.text = string.Format("{0:D2}", currentHour) + " :";
+        Hours.text = string.Format("{0:D2}", currentHour);
         Seconds.text = string.Format("{0:D2}", currentSecond);
-        Minutes.text = string.Format("{0:D2}", currentMinute) + " :";
+        Minutes.text = string.Format("{0:D2}", currentMinute);
         Years.text = string.Format("{0:D2}", currentYear);
         Months.text = string.Format("{0:D2}", currentMonth);
         Days.text = string.Format("{0:D2}", currentDay);
@@ -70,22 +77,33 @@ public class Driver2 : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
     {
+        if (testSeconds != 0)
+        {
+            testSeconds--;
+            if (testSeconds == 1)
+            {
+                Debug.Log("first");
+                LastInput = SensorInput.Value;
+            }
+            return;
+        }
+        //if (Input.GetKeyDown(KeyCode.A))
+        //{
+        //    HeadsetUp();
+        //}
+        //   else if (Input.GetKeyDown((KeyCode.B)))
+        //{
+        //    HeadsetDown();
+        //}
+        checkSensorAndCall();
+        
 
-	    if (Input.GetKeyDown(KeyCode.A))
-	    {
-	        HeadsetUp();
-	    }
-        else if (Input.GetKeyDown((KeyCode.B)))
-	    {
-	        HeadsetDown();
-	    }
-
-	    if (isStop)
+        if (EarphoneIsUp)
 	    {
 	        //current time
-	        Hours.text = string.Format("{0:D2}",currentHour) + " :" ;
+	        Hours.text = string.Format("{0:D2}",currentHour)  ;
 	        Seconds.text = string.Format("{0:D2}",currentSecond) ;
-	        Minutes.text = string.Format("{0:D2}",currentMinute) +  " :";
+	        Minutes.text = string.Format("{0:D2}",currentMinute);
 	        Years.text = string.Format("{0:D2}", currentYear);
 	        Months.text = string.Format("{0:D2}", currentMonth);
 	        Days.text = string.Format("{0:D2}", currentDay);
@@ -94,7 +112,6 @@ public class Driver2 : MonoBehaviour
 
     public void HeadsetUp()
     {
-        isStop = !isStop;
         Audio.SendMessage("Play");
         this.InvokeRepeating("ReduceTime",0,1.0f);
         startTime = DateTime.Now;
@@ -102,7 +119,6 @@ public class Driver2 : MonoBehaviour
 
     public void HeadsetDown()
     {
-        isStop = !isStop;
         Audio.SendMessage("Stop");
         this.CancelInvoke();
 
@@ -140,5 +156,25 @@ public class Driver2 : MonoBehaviour
         currentDay = 20;
         currentMonth = 5;
         currentYear = 23;
+    }
+
+    private void checkSensorAndCall()
+    {
+        CurrentInput = SensorInput.Value;
+        float delta = Math.Abs(CurrentInput - LastInput);
+        LastInput = CurrentInput;
+
+        if (delta > 0.9f)
+        {
+            if (EarphoneIsUp)
+            {
+                HeadsetDown();
+            }
+            else
+            {
+                HeadsetUp();
+            }
+            EarphoneIsUp = !EarphoneIsUp;
+        }
     }
 }

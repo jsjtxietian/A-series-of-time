@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.UI;
+using Ardunity;
 
 public class Driver1 : MonoBehaviour
 {
@@ -8,11 +9,15 @@ public class Driver1 : MonoBehaviour
     public Text Seconds;
     public Text Minutes;
     public GameObject Audio;
+    public AnalogInput SensorInput;
 
-    private bool isStop;
+    private float LastInput;
+    private float CurrentInput;
+    private bool EarphoneIsUp;
     private DateTime startTime;
     private DateTime stopTime;
     private int secondsPassed;
+    private int testSeconds = 300;
 
     public int currentMinute
     {
@@ -35,35 +40,45 @@ public class Driver1 : MonoBehaviour
     // Use this for initialization
     void Start ()
     {
-        Hours.text = string.Format("{0:D3}", currentHour) + " :";
+        Hours.text = string.Format("{0:D3}", currentHour);
         Seconds.text = string.Format("{0:D2}", currentSecond);
-        Minutes.text = string.Format("{0:D2}", currentMinute) + " :";
+        Minutes.text = string.Format("{0:D2}", currentMinute);
+        EarphoneIsUp = false;
     }
 	
 	// Update is called once per frame
 	void Update () {
-
-	    if (Input.GetKeyDown(KeyCode.A))
+	    if (testSeconds != 0)
 	    {
-	        HeadsetUp();
+	        testSeconds--;
+	        if (testSeconds == 1)
+	        {
+	            LastInput = SensorInput.Value;
+                Debug.Log("first");
+	        }
+            return;
 	    }
-        else if (Input.GetKeyDown((KeyCode.B)))
-	    {
-	        HeadsetDown();
-	    }
+        //if (Input.GetKeyDown(KeyCode.A))
+        //{
+        //    HeadsetUp();
+        //}
+        //else if (Input.GetKeyDown((KeyCode.B)))
+        //{
+        //    HeadsetDown();
+        //}
+        checkSensorAndCall();
 
-	    if (isStop)
+        if (EarphoneIsUp)
 	    {
 	        //current time
-	        Hours.text = string.Format("{0:D3}",currentHour) + " :" ;
+	        Hours.text = string.Format("{0:D3}",currentHour) ;
 	        Seconds.text = string.Format("{0:D2}",currentSecond) ;
-	        Minutes.text = string.Format("{0:D2}",currentMinute) +  " :";
+	        Minutes.text = string.Format("{0:D2}",currentMinute);
 	    }
     }
 
     public void HeadsetUp()
     {
-        isStop = !isStop;
         Audio.SendMessage("Play");
         this.InvokeRepeating("AddTime",0,1.0f);
         startTime = DateTime.Now;
@@ -71,7 +86,6 @@ public class Driver1 : MonoBehaviour
 
     public void HeadsetDown()
     {
-        isStop = !isStop;
         Audio.SendMessage("Stop");
         this.CancelInvoke();
 
@@ -100,5 +114,25 @@ public class Driver1 : MonoBehaviour
         currentSecond = 0;
         currentHour = 0;
         currentHour = 0;
+    }
+
+    private void checkSensorAndCall()
+    {
+        CurrentInput = SensorInput.Value;
+        float delta = Math.Abs(CurrentInput-LastInput);
+        LastInput = CurrentInput;
+
+        if (delta > 0.9f)
+        {
+            if (EarphoneIsUp)
+            {
+                HeadsetDown();
+            }
+            else
+            {
+                HeadsetUp();
+            }
+            EarphoneIsUp = !EarphoneIsUp;
+        }
     }
 }
