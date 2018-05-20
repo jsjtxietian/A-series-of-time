@@ -37,9 +37,9 @@ public class Driver3 : MonoBehaviour
 	    if (!isStop)
 	    {
 	        //current time
-	        Hours.text = DateTime.Now.ToString("hh") + " :";
-	        Seconds.text = DateTime.Now.ToString("ss");
-	        Minutes.text = DateTime.Now.ToString("mm") + " :";
+	        Hours.text = DateTime.Now.ToString("HH") + " :";
+	        Seconds.text = ": "+DateTime.Now.ToString("ss");
+	        Minutes.text = DateTime.Now.ToString("mm");
         }
     }
 
