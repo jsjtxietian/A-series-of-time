@@ -14,6 +14,7 @@ public class Driver2 : MonoBehaviour
 
     public GameObject Audio;
 
+    private Printer printer;
     private bool EarphoneIsUp;
     private DateTime startTime;
     private DateTime stopTime;
@@ -26,45 +27,71 @@ public class Driver2 : MonoBehaviour
 
 
     #region  currentTime and the get/set method
+
     public int currentMinute
     {
         get { return PlayerPrefs.GetInt("currentMinute2", 10); }
-        set { PlayerPrefs.SetInt("currentMinute2",value); PlayerPrefs.Save();}
+        set
+        {
+            PlayerPrefs.SetInt("currentMinute2", value);
+            PlayerPrefs.Save();
+        }
     }
 
     public int currentSecond
     {
         get { return PlayerPrefs.GetInt("currentSecond2", 40); }
-        set { PlayerPrefs.SetInt("currentSecond2", value); PlayerPrefs.Save(); }
+        set
+        {
+            PlayerPrefs.SetInt("currentSecond2", value);
+            PlayerPrefs.Save();
+        }
     }
-    
+
     public int currentHour
     {
         get { return PlayerPrefs.GetInt("currentHour2", 13); }
-        set { PlayerPrefs.SetInt("currentHour2", value); PlayerPrefs.Save(); }
+        set
+        {
+            PlayerPrefs.SetInt("currentHour2", value);
+            PlayerPrefs.Save();
+        }
     }
 
     public int currentDay
     {
         get { return PlayerPrefs.GetInt("currentDay", 20); }
-        set { PlayerPrefs.SetInt("currentDay", value); PlayerPrefs.Save(); }
+        set
+        {
+            PlayerPrefs.SetInt("currentDay", value);
+            PlayerPrefs.Save();
+        }
     }
 
     public int currentMonth
     {
         get { return PlayerPrefs.GetInt("currentMonth", 5); }
-        set { PlayerPrefs.SetInt("currentMonth", value); PlayerPrefs.Save(); }
+        set
+        {
+            PlayerPrefs.SetInt("currentMonth", value);
+            PlayerPrefs.Save();
+        }
     }
+
     public int currentYear
     {
         get { return PlayerPrefs.GetInt("currentYear", 23); }
-        set { PlayerPrefs.SetInt("currentYear", value); PlayerPrefs.Save(); }
+        set
+        {
+            PlayerPrefs.SetInt("currentYear", value);
+            PlayerPrefs.Save();
+        }
     }
+
     #endregion
 
-
     // Use this for initialization
-    void Start ()
+    void Start()
     {
         Hours.text = string.Format("{0:D2}", currentHour);
         Seconds.text = string.Format("{0:D2}", currentSecond);
@@ -72,10 +99,12 @@ public class Driver2 : MonoBehaviour
         Years.text = string.Format("{0:D2}", currentYear);
         Months.text = string.Format("{0:D2}", currentMonth);
         Days.text = string.Format("{0:D2}", currentDay);
+
+        printer = new Printer();
     }
-	
-	// Update is called once per frame
-	void Update ()
+
+    // Update is called once per frame
+    void Update()
     {
         if (testSeconds != 0)
         {
@@ -99,25 +128,27 @@ public class Driver2 : MonoBehaviour
             EarphoneIsUp = !EarphoneIsUp;
         }
         checkSensorAndCall();
-        
+
 
         if (EarphoneIsUp)
-	    {
-	        //current time
-	        Hours.text = string.Format("{0:D2}",currentHour)  ;
-	        Seconds.text = string.Format("{0:D2}",currentSecond) ;
-	        Minutes.text = string.Format("{0:D2}",currentMinute);
-	        Years.text = string.Format("{0:D2}", currentYear);
-	        Months.text = string.Format("{0:D2}", currentMonth);
-	        Days.text = string.Format("{0:D2}", currentDay);
+        {
+            //current time
+            Hours.text = string.Format("{0:D2}", currentHour);
+            Seconds.text = string.Format("{0:D2}", currentSecond);
+            Minutes.text = string.Format("{0:D2}", currentMinute);
+            Years.text = string.Format("{0:D2}", currentYear);
+            Months.text = string.Format("{0:D2}", currentMonth);
+            Days.text = string.Format("{0:D2}", currentDay);
         }
     }
 
     public void HeadsetUp()
     {
         Audio.SendMessage("PlayMusic");
-        this.InvokeRepeating("ReduceTime",0,1.0f);
+        this.InvokeRepeating("ReduceTime", 0, 1.0f);
         startTime = DateTime.Now;
+
+        printer.timeSeries.Clear();
     }
 
     public void HeadsetDown()
@@ -126,8 +157,13 @@ public class Driver2 : MonoBehaviour
         this.CancelInvoke();
 
         stopTime = DateTime.Now;
-        secondsPassed = (int)(stopTime - startTime).TotalSeconds;
-        Debug.Log(secondsPassed);
+        secondsPassed = (int) (stopTime - startTime).TotalSeconds;
+
+        printer.timeSeries.Add(Years.text + "Y" + Months.text
+                               + "M" + Days.text + "D " + Hours.text + ":" +
+                               Minutes.text + ":" + Seconds.text);
+
+        printer.Print2();
     }
 
     private void ReduceTime()
@@ -149,7 +185,10 @@ public class Driver2 : MonoBehaviour
             currentHour = 23;
             currentDay--;
         }
-        //todo month 30 31 28
+
+        printer.timeSeries.Add(Years.text + "Y" + Months.text
+                               + "M" + Days.text + "D " + Hours.text + ":" +
+                               Minutes.text + ":" + Seconds.text);
     }
 
     public void Reset()

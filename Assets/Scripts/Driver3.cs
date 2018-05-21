@@ -17,7 +17,7 @@ public class Driver3 : MonoBehaviour
 
     private string originSecond;
     private bool isVanish;
-
+    private Printer printer;
     public AnalogInput SensorInput;
     private float LastInput;
     private float CurrentInput;
@@ -27,21 +27,27 @@ public class Driver3 : MonoBehaviour
     void Start ()
     {
         EarphoneIsUp = false;
+        printer = new Printer();
+
+        Hours.text = DateTime.Now.ToString("HH");
+        Seconds.text = DateTime.Now.ToString("ss");
+        Minutes.text = DateTime.Now.ToString("mm");
     }
 	
 	// Update is called once per frame
 	void Update () {
 
-        //if (Input.GetKeyDown(KeyCode.A))
-        //{
-        //    HeadsetUp();
-        //    EarphoneIsUp = !EarphoneIsUp;
-        //}
-        //else if (Input.GetKeyDown((KeyCode.B)))
-        //{
-        //    HeadsetDown();
-        //    EarphoneIsUp = !EarphoneIsUp;
-        //}
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            HeadsetUp();
+            EarphoneIsUp = !EarphoneIsUp;
+        }
+        else if (Input.GetKeyDown((KeyCode.B)))
+        {
+            HeadsetDown();
+            EarphoneIsUp = !EarphoneIsUp;
+        }
+
         if (testSeconds != 0)
 	    {
 	        testSeconds--;
@@ -69,6 +75,8 @@ public class Driver3 : MonoBehaviour
     {
         Audio.SendMessage("PlayMusic");
 
+        printer.setPara(Hours.text, Minutes.text, Seconds.text);
+
         originSecond = Seconds.text;
         isVanish = false;
         InvokeRepeating("Flash",0f,0.5f);
@@ -85,7 +93,8 @@ public class Driver3 : MonoBehaviour
 
         stopTime = DateTime.Now;
         secondsPassed = (int)(stopTime - startTime).TotalSeconds + 1;
-        Debug.Log(secondsPassed);
+        
+        printer.Print3(secondsPassed);
     }
 
     private void Flash()

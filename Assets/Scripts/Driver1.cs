@@ -11,6 +11,7 @@ public class Driver1 : MonoBehaviour
     public GameObject Music;
     public AnalogInput SensorInput;
 
+    private Printer printer;
     private float LastInput;
     private float CurrentInput;
     private bool EarphoneIsUp;
@@ -44,6 +45,8 @@ public class Driver1 : MonoBehaviour
         Seconds.text = string.Format("{0:D2}", currentSecond);
         Minutes.text = string.Format("{0:D2}", currentMinute);
         EarphoneIsUp = false;
+
+        printer = new Printer();
     }
 	
 	// Update is called once per frame
@@ -59,16 +62,16 @@ public class Driver1 : MonoBehaviour
             return;
 	    }
 
-        //if (Input.GetKeyDown(KeyCode.A))
-        //{
-        //    HeadsetUp();
-        //    EarphoneIsUp = !EarphoneIsUp;
-        //}
-        //else if (Input.GetKeyDown((KeyCode.B)))
-        //{
-        //    HeadsetDown();
-        //    EarphoneIsUp = !EarphoneIsUp;
-        //}
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            HeadsetUp();
+            EarphoneIsUp = !EarphoneIsUp;
+        }
+        else if (Input.GetKeyDown((KeyCode.B)))
+        {
+            HeadsetDown();
+            EarphoneIsUp = !EarphoneIsUp;
+        }
 
         checkSensorAndCall();
 
@@ -78,6 +81,7 @@ public class Driver1 : MonoBehaviour
 	        Hours.text = string.Format("{0:D3}",currentHour) ;
 	        Seconds.text = string.Format("{0:D2}",currentSecond) ;
 	        Minutes.text = string.Format("{0:D2}",currentMinute);
+
 	    }
     }
 
@@ -86,6 +90,7 @@ public class Driver1 : MonoBehaviour
         Music.SendMessage("PlayMusic");
         this.InvokeRepeating("AddTime",0,1.0f);
         startTime = DateTime.Now;
+        printer.timeSeries.Clear();
     }
 
     public void HeadsetDown()
@@ -95,7 +100,9 @@ public class Driver1 : MonoBehaviour
 
         stopTime = DateTime.Now;
         secondsPassed = (int)(stopTime - startTime).TotalSeconds;
-        Debug.Log(secondsPassed);
+
+        printer.timeSeries.Add(Hours.text + ":" + Minutes.text + ":" + Seconds.text + " ");
+        printer.Print1(secondsPassed);
     }
 
     private void AddTime()
@@ -112,6 +119,8 @@ public class Driver1 : MonoBehaviour
             currentMinute = 0;
             currentHour++;
         }
+
+        printer.timeSeries.Add(Hours.text + ":" + Minutes.text + ":" + Seconds.text + " ");
     }
 
     public void Reset()
