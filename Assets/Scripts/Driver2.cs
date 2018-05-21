@@ -87,14 +87,17 @@ public class Driver2 : MonoBehaviour
             }
             return;
         }
-        //if (Input.GetKeyDown(KeyCode.A))
-        //{
-        //    HeadsetUp();
-        //}
-        //   else if (Input.GetKeyDown((KeyCode.B)))
-        //{
-        //    HeadsetDown();
-        //}
+
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            HeadsetUp();
+            EarphoneIsUp = !EarphoneIsUp;
+        }
+        else if (Input.GetKeyDown((KeyCode.B)))
+        {
+            HeadsetDown();
+            EarphoneIsUp = !EarphoneIsUp;
+        }
         checkSensorAndCall();
         
 
@@ -112,14 +115,14 @@ public class Driver2 : MonoBehaviour
 
     public void HeadsetUp()
     {
-        Audio.SendMessage("Play");
+        Audio.SendMessage("PlayMusic");
         this.InvokeRepeating("ReduceTime",0,1.0f);
         startTime = DateTime.Now;
     }
 
     public void HeadsetDown()
     {
-        Audio.SendMessage("Stop");
+        Audio.SendMessage("StopMusic");
         this.CancelInvoke();
 
         stopTime = DateTime.Now;
@@ -129,6 +132,7 @@ public class Driver2 : MonoBehaviour
 
     private void ReduceTime()
     {
+        Audio.SendMessage("PlayTick");
         currentSecond--;
         if (currentSecond == -1)
         {

@@ -8,7 +8,7 @@ public class Driver1 : MonoBehaviour
     public Text Hours;
     public Text Seconds;
     public Text Minutes;
-    public GameObject Audio;
+    public GameObject Music;
     public AnalogInput SensorInput;
 
     private float LastInput;
@@ -58,14 +58,18 @@ public class Driver1 : MonoBehaviour
 	        }
             return;
 	    }
+
         //if (Input.GetKeyDown(KeyCode.A))
         //{
         //    HeadsetUp();
+        //    EarphoneIsUp = !EarphoneIsUp;
         //}
         //else if (Input.GetKeyDown((KeyCode.B)))
         //{
         //    HeadsetDown();
+        //    EarphoneIsUp = !EarphoneIsUp;
         //}
+
         checkSensorAndCall();
 
         if (EarphoneIsUp)
@@ -79,14 +83,14 @@ public class Driver1 : MonoBehaviour
 
     public void HeadsetUp()
     {
-        Audio.SendMessage("Play");
+        Music.SendMessage("PlayMusic");
         this.InvokeRepeating("AddTime",0,1.0f);
         startTime = DateTime.Now;
     }
 
     public void HeadsetDown()
     {
-        Audio.SendMessage("Stop");
+        Music.SendMessage("StopMusic");
         this.CancelInvoke();
 
         stopTime = DateTime.Now;
@@ -96,6 +100,7 @@ public class Driver1 : MonoBehaviour
 
     private void AddTime()
     {
+        Music.SendMessage("PlayTick");
         currentSecond++;
         if (currentSecond == 60)
         {

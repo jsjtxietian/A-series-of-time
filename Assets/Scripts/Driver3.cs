@@ -35,11 +35,14 @@ public class Driver3 : MonoBehaviour
         //if (Input.GetKeyDown(KeyCode.A))
         //{
         //    HeadsetUp();
-        //}else if (Input.GetKeyDown((KeyCode.B)))
+        //    EarphoneIsUp = !EarphoneIsUp;
+        //}
+        //else if (Input.GetKeyDown((KeyCode.B)))
         //{
         //    HeadsetDown();
-	    //}
-	    if (testSeconds != 0)
+        //    EarphoneIsUp = !EarphoneIsUp;
+        //}
+        if (testSeconds != 0)
 	    {
 	        testSeconds--;
 	        if (testSeconds == 1)
@@ -64,7 +67,7 @@ public class Driver3 : MonoBehaviour
 
     public void HeadsetUp()
     {
-        Audio.SendMessage("Play");
+        Audio.SendMessage("PlayMusic");
 
         originSecond = Seconds.text;
         isVanish = false;
@@ -75,7 +78,7 @@ public class Driver3 : MonoBehaviour
 
     public void HeadsetDown()
     {
-        Audio.SendMessage("Stop");
+        Audio.SendMessage("StopMusic");
         this.CancelInvoke();
         Seconds.text = originSecond;
         isVanish = false;

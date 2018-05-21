@@ -2,18 +2,24 @@
 
 public class audio : MonoBehaviour
 {
-    public AudioSource music;
+    public AudioSource Music;
+    public AudioSource TickTock;
     public float musicVolume;
 
-    public void Play()
+    public void PlayMusic()
     {
-        if (!music.isPlaying)
-            music.Play();
+        if (!Music.isPlaying)
+            Music.Play();
     }
 
-    public void Stop()
+    public void StopMusic()
     {
-        if (music.isPlaying)
-            music.Stop();
+        if (Music.isPlaying)
+            Music.Stop();
+    }
+
+    public void PlayTick()
+    {
+        TickTock.Play();
     }
 }
