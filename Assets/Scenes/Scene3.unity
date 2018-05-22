@@ -243,7 +243,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 358, y: -119}
+  m_AnchoredPosition: {x: 365, y: -119}
   m_SizeDelta: {x: 1000, y: 300}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &318902797
@@ -1069,7 +1069,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 152, y: -103}
+  m_AnchoredPosition: {x: 166, y: -103}
   m_SizeDelta: {x: 1000, y: 300}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1280701861
@@ -1229,6 +1229,7 @@ MonoBehaviour:
   Seconds: {fileID: 701445772}
   Minutes: {fileID: 1216376841}
   Audio: {fileID: 1198326127}
+  Threshold: 0
   SensorInput: {fileID: 455556047}
 --- !u!1 &1954420201
 GameObject:

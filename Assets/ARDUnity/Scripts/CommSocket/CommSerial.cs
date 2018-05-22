@@ -219,7 +219,10 @@ namespace Ardunity
 		{
 			try
 			{
-				_serialPort.PortName = device.address;
+				//_serialPort.PortName = device.address;
+                StreamReader sr = new StreamReader("D:\\COM.txt");
+			    _serialPort.PortName = sr.ReadLine();
+
 				_serialPort.BaudRate = baudrate;
 				_serialPort.DtrEnable = dtrReset;
 				_serialPort.Open();

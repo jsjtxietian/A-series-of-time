@@ -1,14 +1,16 @@
 ﻿using Ardunity;
 using System;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Driver3 : MonoBehaviour
+public class Driver3 : MonoBehaviour ,Driver
 {
     public Text Hours;
     public Text Seconds;
     public Text Minutes;
     public GameObject Audio;
+    public float Threshold;
 
     private bool EarphoneIsUp;
     private DateTime startTime;
@@ -19,34 +21,26 @@ public class Driver3 : MonoBehaviour
     private bool isVanish;
     private Printer printer;
     public AnalogInput SensorInput;
-    private float LastInput;
-    private float CurrentInput;
+    private int LastInput;
+    private int CurrentInput;
     private int testSeconds = 300;
 
     // Use this for initialization
     void Start ()
     {
         EarphoneIsUp = false;
+
         printer = new Printer();
 
-        Hours.text = DateTime.Now.ToString("HH");
-        Seconds.text = DateTime.Now.ToString("ss");
-        Minutes.text = DateTime.Now.ToString("mm");
+        UpdateText();
+
+        StreamReader sr = new StreamReader("D:\\Threshold.txt");
+        string s = sr.ReadLine();
+        Threshold = float.Parse(s);
     }
 	
 	// Update is called once per frame
 	void Update () {
-
-        if (Input.GetKeyDown(KeyCode.A))
-        {
-            HeadsetUp();
-            EarphoneIsUp = !EarphoneIsUp;
-        }
-        else if (Input.GetKeyDown((KeyCode.B)))
-        {
-            HeadsetDown();
-            EarphoneIsUp = !EarphoneIsUp;
-        }
 
         if (testSeconds != 0)
 	    {
@@ -54,20 +48,31 @@ public class Driver3 : MonoBehaviour
 	        if (testSeconds == 1)
 	        {
 	            Debug.Log("first");
-	            LastInput = SensorInput.Value;
+	            LastInput = SensorInput.Value > Threshold ? 1 : 0;
 	        }
 	        return;
 	    }
+
+	    if (Input.GetKeyDown(KeyCode.A))
+	    {
+	        HeadsetUp();
+	        EarphoneIsUp = !EarphoneIsUp;
+	    }
+	    else if (Input.GetKeyDown((KeyCode.B)))
+	    {
+	        HeadsetDown();
+	        EarphoneIsUp = !EarphoneIsUp;
+	    }
+	    else if(Input.GetKeyDown((KeyCode.Escape)))
+	    {
+	        Application.Quit();
+	    }
+
         checkSensorAndCall();
 
         if (!EarphoneIsUp)
-	    {
-            //current time
-            //Hours.text = DateTime.Now.ToString("HH") + " :";
-	        Hours.text = DateTime.Now.ToString("HH");
-            //Seconds.text = ": "+DateTime.Now.ToString("ss");
-            Seconds.text = DateTime.Now.ToString("ss");
-            Minutes.text = DateTime.Now.ToString("mm");
+        {
+            UpdateText();
         }
     }
 
@@ -113,21 +118,32 @@ public class Driver3 : MonoBehaviour
 
     private void checkSensorAndCall()
     {
-        CurrentInput = SensorInput.Value;
-        float delta = Math.Abs(CurrentInput - LastInput);
+        CurrentInput = SensorInput.Value > Threshold ? 1 : 0;
+        int delta = CurrentInput - LastInput;
         LastInput = CurrentInput;
-
-        if (delta > 0.9f)
+        if (Math.Abs(delta) != 0)
         {
             if (EarphoneIsUp)
             {
                 HeadsetDown();
             }
-            else
+            else if(!EarphoneIsUp)
             {
                 HeadsetUp();
             }
             EarphoneIsUp = !EarphoneIsUp;
         }
+    }
+
+    public void Reset()
+    {
+        
+    }
+
+    private void UpdateText()
+    {
+        Hours.text = DateTime.Now.ToString("HH");
+        Seconds.text = DateTime.Now.ToString("ss");
+        Minutes.text = DateTime.Now.ToString("mm");
     }
 }

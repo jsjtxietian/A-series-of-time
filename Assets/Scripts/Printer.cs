@@ -8,9 +8,10 @@ using System.Security.Cryptography;
 public class Printer
 {
     #region scene3
-    public string hour;
-    public string minute;
-    public string second;
+    private string hour;
+    private string minute;
+    private string second;
+
     public void setPara(int h, int m, int s)
     {
         hour = string.Format("{0:D2}", h);
@@ -25,11 +26,9 @@ public class Printer
         second = s;
     }
 
-
     public void Print3(int secondsPassed)
     {
         StreamWriter sw = new StreamWriter("D:\\OUTPUT3.txt");
-        //sw.Write("I MEAN NOTHING\nWITHOUT YOU\n————————————");
         sw.Write("FIRST TIME I\n————————————\n");
 
         int index = 0;
@@ -62,6 +61,7 @@ public class Printer
 
 
     #region Scene1&2
+
     public List<string> timeSeries = new List<string>();
 
     public void Print1(int secondsPassed)
@@ -125,5 +125,4 @@ public class Printer
         pr.Start();
     }
 
-    
 }

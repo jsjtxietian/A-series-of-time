@@ -1,9 +1,10 @@
 ﻿using System;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 using Ardunity;
 
-public class Driver1 : MonoBehaviour
+public class Driver1 : MonoBehaviour,Driver
 {
     public Text Hours;
     public Text Seconds;
@@ -12,14 +13,16 @@ public class Driver1 : MonoBehaviour
     public AnalogInput SensorInput;
 
     private Printer printer;
-    private float LastInput;
-    private float CurrentInput;
+    private int LastInput;
+    private int CurrentInput;
     private bool EarphoneIsUp;
     private DateTime startTime;
     private DateTime stopTime;
     private int secondsPassed;
     private int testSeconds = 300;
+    private float Threshold;
 
+#region getset
     public int currentMinute
     {
         get { return PlayerPrefs.GetInt("currentMinute1", 0); }
@@ -37,16 +40,17 @@ public class Driver1 : MonoBehaviour
         get { return PlayerPrefs.GetInt("currentHour1", 0); }
         set { PlayerPrefs.SetInt("currentHour1", value); PlayerPrefs.Save(); }
     }
-
+#endregion
     // Use this for initialization
     void Start ()
     {
-        Hours.text = string.Format("{0:D3}", currentHour);
-        Seconds.text = string.Format("{0:D2}", currentSecond);
-        Minutes.text = string.Format("{0:D2}", currentMinute);
+        UpdateText();
         EarphoneIsUp = false;
 
         printer = new Printer();
+        StreamReader sr = new StreamReader("D:\\Threshold.txt");
+        string s = sr.ReadLine();
+        Threshold = float.Parse(s);
     }
 	
 	// Update is called once per frame
@@ -56,7 +60,7 @@ public class Driver1 : MonoBehaviour
 	        testSeconds--;
 	        if (testSeconds == 1)
 	        {
-	            LastInput = SensorInput.Value;
+	            LastInput = SensorInput.Value > Threshold ? 1 : 0;
                 Debug.Log("first");
 	        }
             return;
@@ -72,17 +76,21 @@ public class Driver1 : MonoBehaviour
             HeadsetDown();
             EarphoneIsUp = !EarphoneIsUp;
         }
+        else if (Input.GetKeyDown((KeyCode.Escape)))
+        {
+            Application.Quit();
+        }
+        else if (Input.GetKeyDown(KeyCode.F))
+        {
+            Reset();
+        }
 
         checkSensorAndCall();
 
         if (EarphoneIsUp)
-	    {
-	        //current time
-	        Hours.text = string.Format("{0:D3}",currentHour) ;
-	        Seconds.text = string.Format("{0:D2}",currentSecond) ;
-	        Minutes.text = string.Format("{0:D2}",currentMinute);
-
-	    }
+        {
+            UpdateText();
+        }
     }
 
     public void HeadsetUp()
@@ -127,26 +135,33 @@ public class Driver1 : MonoBehaviour
     {
         currentSecond = 0;
         currentHour = 0;
-        currentHour = 0;
+        currentMinute = 0;
+        UpdateText();
     }
 
     private void checkSensorAndCall()
     {
-        CurrentInput = SensorInput.Value;
-        float delta = Math.Abs(CurrentInput-LastInput);
+        CurrentInput = SensorInput.Value > Threshold ? 1 : 0;
+        int delta = CurrentInput - LastInput;
         LastInput = CurrentInput;
-
-        if (delta > 0.9f)
+        if (Math.Abs(delta) != 0)
         {
             if (EarphoneIsUp)
             {
                 HeadsetDown();
             }
-            else
+            else if (!EarphoneIsUp)
             {
                 HeadsetUp();
             }
             EarphoneIsUp = !EarphoneIsUp;
         }
+    }
+
+    private void UpdateText()
+    {
+        Hours.text = string.Format("{0:D3}", currentHour);
+        Seconds.text = string.Format("{0:D2}", currentSecond);
+        Minutes.text = string.Format("{0:D2}", currentMinute);
     }
 }

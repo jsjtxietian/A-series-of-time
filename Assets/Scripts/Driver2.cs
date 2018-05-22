@@ -1,9 +1,11 @@
 ﻿using System;
+using System.IO;
+using System.Security.AccessControl;
 using Ardunity;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Driver2 : MonoBehaviour
+public class Driver2 : MonoBehaviour , Driver
 {
     public Text Hours;
     public Text Seconds;
@@ -16,14 +18,12 @@ public class Driver2 : MonoBehaviour
 
     private Printer printer;
     private bool EarphoneIsUp;
-    private DateTime startTime;
-    private DateTime stopTime;
-    private int secondsPassed;
 
     public AnalogInput SensorInput;
-    private float LastInput;
-    private float CurrentInput;
+    private int LastInput;
+    private int CurrentInput;
     private int testSeconds = 300;
+    public float Threshold;
 
 
     #region  currentTime and the get/set method
@@ -93,14 +93,13 @@ public class Driver2 : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        Hours.text = string.Format("{0:D2}", currentHour);
-        Seconds.text = string.Format("{0:D2}", currentSecond);
-        Minutes.text = string.Format("{0:D2}", currentMinute);
-        Years.text = string.Format("{0:D2}", currentYear);
-        Months.text = string.Format("{0:D2}", currentMonth);
-        Days.text = string.Format("{0:D2}", currentDay);
+        UpdateText();
 
         printer = new Printer();
+
+        StreamReader sr = new StreamReader("D:\\Threshold.txt");
+        string s = sr.ReadLine();
+        Threshold = float.Parse(s);
     }
 
     // Update is called once per frame
@@ -112,7 +111,7 @@ public class Driver2 : MonoBehaviour
             if (testSeconds == 1)
             {
                 Debug.Log("first");
-                LastInput = SensorInput.Value;
+                LastInput = SensorInput.Value > Threshold ? 1 : 0;
             }
             return;
         }
@@ -127,18 +126,22 @@ public class Driver2 : MonoBehaviour
             HeadsetDown();
             EarphoneIsUp = !EarphoneIsUp;
         }
+        else if (Input.GetKeyDown((KeyCode.Escape)))
+        {
+            Application.Quit();
+        }
+        else if (Input.GetKeyDown(KeyCode.F))
+        {
+            Reset();
+        }
+
         checkSensorAndCall();
 
 
         if (EarphoneIsUp)
         {
             //current time
-            Hours.text = string.Format("{0:D2}", currentHour);
-            Seconds.text = string.Format("{0:D2}", currentSecond);
-            Minutes.text = string.Format("{0:D2}", currentMinute);
-            Years.text = string.Format("{0:D2}", currentYear);
-            Months.text = string.Format("{0:D2}", currentMonth);
-            Days.text = string.Format("{0:D2}", currentDay);
+            UpdateText();
         }
     }
 
@@ -146,7 +149,6 @@ public class Driver2 : MonoBehaviour
     {
         Audio.SendMessage("PlayMusic");
         this.InvokeRepeating("ReduceTime", 0, 1.0f);
-        startTime = DateTime.Now;
 
         printer.timeSeries.Clear();
     }
@@ -155,9 +157,6 @@ public class Driver2 : MonoBehaviour
     {
         Audio.SendMessage("StopMusic");
         this.CancelInvoke();
-
-        stopTime = DateTime.Now;
-        secondsPassed = (int) (stopTime - startTime).TotalSeconds;
 
         printer.timeSeries.Add(Years.text + "Y" + Months.text
                                + "M" + Days.text + "D " + Hours.text + ":" +
@@ -199,25 +198,35 @@ public class Driver2 : MonoBehaviour
         currentDay = 20;
         currentMonth = 5;
         currentYear = 23;
+        UpdateText();
     }
 
     private void checkSensorAndCall()
     {
-        CurrentInput = SensorInput.Value;
-        float delta = Math.Abs(CurrentInput - LastInput);
+        CurrentInput = SensorInput.Value > Threshold ? 1 : 0;
+        int delta = CurrentInput - LastInput;
         LastInput = CurrentInput;
-
-        if (delta > 0.9f)
+        if (Math.Abs(delta) != 0)
         {
             if (EarphoneIsUp)
             {
                 HeadsetDown();
             }
-            else
+            else if (!EarphoneIsUp)
             {
                 HeadsetUp();
             }
             EarphoneIsUp = !EarphoneIsUp;
         }
+    }
+
+    private void UpdateText()
+    {
+        Hours.text = string.Format("{0:D2}", currentHour);
+        Seconds.text = string.Format("{0:D2}", currentSecond);
+        Minutes.text = string.Format("{0:D2}", currentMinute);
+        Years.text = string.Format("{0:D2}", currentYear);
+        Months.text = string.Format("{0:D2}", currentMonth);
+        Days.text = string.Format("{0:D2}", currentDay);
     }
 }
